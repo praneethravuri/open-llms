@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from transformers import pipeline
 
 app = FastAPI()
 
@@ -17,4 +18,8 @@ class Message(BaseModel):
 
 @app.post("/api/chat")
 async def chat(message: Message):
+    print(f'Message: {message.message}')
+    classifier = pipeline("sentiment-analysis")
+    result = classifier(message.message)
+    print(f'Result: {result}')
     return {"reply": message.message.upper()}
