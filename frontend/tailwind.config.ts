@@ -18,7 +18,10 @@ const config = {
       },
     },
     extend: {
+      
       colors: {
+        "dark-gray" : "#212121",
+        "light-gray" : "#424242;",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
