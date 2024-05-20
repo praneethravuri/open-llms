@@ -26,7 +26,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
-                    className="flex-grow mr-4 bg-light-gray font-normal border-none ring-transparent text-white"
+                    className="flex-grow mr-4 bg-light-gray font-normal border-none ring-transparent  text-white"
                 />
                 <Button onClick={handleSend} variant="secondary">
                     <ArrowUpFromLine />
