@@ -58,7 +58,7 @@ const ChatWindow = () => {
 
     return (
         <section className='h-screen flex flex-col'>
-            <div className="model-status-selection flex items-center justify-between">
+            <div className="model-status-selection flex items-center justify-between p-4">
                 <div className="model-selection">
                     <Select>
                         <SelectTrigger className="w-[300px]">
@@ -72,7 +72,7 @@ const ChatWindow = () => {
                     </Select>
 
                 </div>
-                <div className="model-status flex justify-end p-4">
+                <div className="model-status flex justify-end">
                     {!modelReady ? (
                         <Badge variant="offline">Model Offline</Badge>
                     ) : (

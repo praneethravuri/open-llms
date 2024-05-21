@@ -22,7 +22,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, sender }) => {
     return (
         <section className='mb-20'>
             <div className={`my-2 ${sender === 'user' ? 'flex justify-end' : 'flex justify-start'}`}>
-                <div className={`p-4 rounded-lg ${sender === 'user' ? 'bg-light-gray text-white' : 'w-full'}`}>
+                <div className={` rounded-lg ${sender === 'user' ? 'bg-light-gray text-white p-4' : 'w-full'}`}>
                     <p className="text-left">{message}</p>
                     {sender === 'bot' && (
                         <div className="flex justify-start mt-2">
