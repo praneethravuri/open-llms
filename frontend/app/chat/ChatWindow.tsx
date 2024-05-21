@@ -7,6 +7,14 @@ import axios from 'axios';
 import Instruction from '@/components/static/Instruction';
 import LoadingSpinner from '@/components/static/LoadingSpinner';
 import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
 
 const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
@@ -50,12 +58,27 @@ const ChatWindow = () => {
 
     return (
         <section className='h-screen flex flex-col'>
-            <div className="model-status flex justify-end p-4">
-                {!modelReady ? (
-                    <Badge variant="offline">Model Offline</Badge>
-                ) : (
-                    <Badge variant="online">Model Online</Badge>
-                )}
+            <div className="model-status-selection flex items-center justify-between">
+                <div className="model-selection">
+                    <Select>
+                        <SelectTrigger className="w-[300px]">
+                            <SelectValue placeholder="Select model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                            <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                            <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                </div>
+                <div className="model-status flex justify-end p-4">
+                    {!modelReady ? (
+                        <Badge variant="offline">Model Offline</Badge>
+                    ) : (
+                        <Badge variant="online">Model Online</Badge>
+                    )}
+                </div>
             </div>
             <div className="show-messages flex-grow overflow-auto p-4">
                 {messages.length === 0 ? (

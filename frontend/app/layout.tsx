@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { GeistSans } from "geist/font/sans";
+import { Inter, Source_Code_Pro} from 'next/font/google'
+
+const source_code_pro = Source_Code_Pro({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-source-code-pro',
+})
 
 export const metadata: Metadata = {
   title: "OpenLLM",
@@ -14,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${GeistSans.className} bg-dark-gray text-white sm:text-base text-sm`}>
+      <body className={`${GeistSans.className} ${source_code_pro.variable} bg-dark-gray text-white sm:text-base text-sm`}>
         {children}
       </body>
     </html>

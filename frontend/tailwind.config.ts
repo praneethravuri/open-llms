@@ -18,7 +18,9 @@ const config = {
       },
     },
     extend: {
-      
+      fontFamily : {
+        codePro : ['var(--font-source-code-pro)']
+      },
       colors: {
         "gray-text-color" : "#9b9b9b",
         "sidebar-gray" : "#2f2f2f",
