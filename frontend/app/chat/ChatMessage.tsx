@@ -20,7 +20,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, sender }) => {
     };
 
     return (
-        <section className=''>
+        <section className='mb-20'>
             <div className={`my-2 ${sender === 'user' ? 'flex justify-end' : 'flex justify-start'}`}>
                 <div className={`p-4 rounded-lg ${sender === 'user' ? 'bg-light-gray text-white' : 'w-full'}`}>
                     <p className="text-left">{message}</p>
