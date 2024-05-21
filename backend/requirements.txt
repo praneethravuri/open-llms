@@ -4,3 +4,5 @@ transformers
 torch
 tensorflow
 tf-keras
+datasets
+accelerate

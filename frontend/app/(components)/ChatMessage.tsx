@@ -7,11 +7,13 @@ interface ChatMessageProps {
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, sender }) => {
     return (
-        <div className={`my-2 ${sender === 'user' ? 'flex justify-end' : 'flex justify-start'}`}>
-            <div className={`p-4 rounded-lg ${sender === 'user' ? 'bg-zinc-800 text-white' : 'bg-gray-300 text-black w-full'}`}>
-                <p className="text-left"><strong>{sender === 'user' ? 'You' : 'Bot'}:</strong> {message}</p>
+        <section className=''>
+            <div className={`my-2 ${sender === 'user' ? 'flex justify-end' : 'flex justify-start'}`}>
+                <div className={`p-4 rounded-lg ${sender === 'user' ? 'bg-zinc-800 text-white' : ' w-full'}`}>
+                    <p className="text-left"><strong>{sender === 'user' ? 'You' : 'Bot'}:</strong> {message}</p>
+                </div>
             </div>
-        </div>
+        </section>
     );
 };
 

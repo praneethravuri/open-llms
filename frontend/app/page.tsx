@@ -1,12 +1,15 @@
 "use client";
 import ChatWindow from "./(components)/ChatWindow";
+import Sidebar from "@/components/static/Sidebar";
 
 const Home: React.FC = () => {
     return (
-        <div>
-            <h1>Chat with GPT-2</h1>
-            <ChatWindow />
-        </div>
+        <section className="h-screen w-full flex">
+            <Sidebar />
+            <div className="">
+                <ChatWindow />
+            </div>
+        </section>
     );
 }
 

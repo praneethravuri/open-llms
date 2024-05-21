@@ -21,7 +21,8 @@ const config = {
       
       colors: {
         "dark-gray" : "#212121",
-        "light-gray" : "#424242;",
+        "light-gray" : "#424242",
+        "very-dark-gray" : "#171717",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

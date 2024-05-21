@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowUpFromLine } from 'lucide-react';
 
@@ -19,20 +19,19 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     };
 
     return (
-        <div className="fixed bottom-0 w-full flex justify-center p-4">
-            <div className="flex items-center w-full max-w-3xl">
-                <Input
-                    type="text"
+        <section className="fixed bottom-0 w-full py-4 flex justify-center">
+            <div className="flex justify-center items-center w-full max-w-3xl ">
+                <Textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
-                    className="flex-grow mr-4 bg-light-gray font-normal border-none ring-transparent  text-white"
+                    className="mr-4 bg-light-gray font-normal border-none ring-transparent text-white resize-none"
                 />
                 <Button onClick={handleSend} variant="secondary">
                     <ArrowUpFromLine />
                 </Button>
             </div>
-        </div>
+        </section>
     );
 };
 
