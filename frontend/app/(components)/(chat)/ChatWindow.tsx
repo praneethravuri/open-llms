@@ -1,11 +1,11 @@
 "use client";
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 
+const ChatWindow = () => {
 
-const ChatWindow: React.FC = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
 
     const sendMessage = async (message: string) => {
@@ -23,15 +23,15 @@ const ChatWindow: React.FC = () => {
     };
 
     return (
-        <section className='w-5/6'>
+        <div className='h-screen'>
             <div className=''>
                 {messages.map((msg, index) => (
                     <ChatMessage key={index} message={msg.message} sender={msg.sender} />
                 ))}
                 <ChatInput onSendMessage={sendMessage} />
             </div>
-        </section>
-    );
-};
+        </div>
+    )
+}
 
-export default ChatWindow;
+export default ChatWindow
