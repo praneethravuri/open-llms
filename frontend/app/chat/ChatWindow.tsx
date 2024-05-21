@@ -1,15 +1,35 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import axios from 'axios';
 import Instruction from '@/components/static/Instruction';
 import LoadingSpinner from '@/components/static/LoadingSpinner';
+import { Badge } from "@/components/ui/badge";
 
 const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [modelReady, setModelReady] = useState<boolean>(false);
+
+    useEffect(() => {
+        const checkModelReady = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/health');
+                if (response.data.status === "ready") {
+                    setModelReady(true);
+                } else {
+                    throw new Error("Model not ready");
+                }
+            } catch (error) {
+                console.error("Model not ready yet:", error);
+                setTimeout(checkModelReady, 5000);
+            }
+        };
+
+        checkModelReady();
+    }, []);
 
     const sendMessage = async (message: string) => {
         setLoading(true);
@@ -30,7 +50,14 @@ const ChatWindow = () => {
 
     return (
         <section className='h-screen flex flex-col'>
-            <div className="show-messages flex-grow overflow-auto">
+            <div className="model-status flex justify-end p-4">
+                {!modelReady ? (
+                    <Badge variant="offline">Model Offline</Badge>
+                ) : (
+                    <Badge variant="online">Model Online</Badge>
+                )}
+            </div>
+            <div className="show-messages flex-grow overflow-auto p-4">
                 {messages.length === 0 ? (
                     <Instruction />
                 ) : (
@@ -42,7 +69,7 @@ const ChatWindow = () => {
                     </>
                 )}
             </div>
-            <div className="input-message mb-10">
+            <div className="input-message mb-10 p-4">
                 <ChatInput onSendMessage={sendMessage} />
             </div>
         </section>

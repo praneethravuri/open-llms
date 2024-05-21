@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -9,19 +8,28 @@ interface ChatInputProps {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
-
     const [input, setInput] = useState<string>("");
+    const [isButtonDisabled, setButtonDisabled] = useState(true);
 
     const handleSend = () => {
         if (input.trim() !== "") {
             console.log(input);
             onSendMessage(input);
             setInput("");
+            setButtonDisabled(true);
         }
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setInput(event.target.value);
+        const inputValue = event.target.value;
+        setInput(inputValue);
+        setButtonDisabled(inputValue.trim() === "");
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === 'Enter') {
+            handleSend();
+        }
     };
 
     return (
@@ -34,10 +42,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                         placeholder='Enter a message'
                         value={input}
                         onChange={handleChange}
+                        onKeyDown={handleKeyDown}
                     />
                 </div>
                 <div className="send-btn">
-                    <Button className='border-none' onClick={handleSend}>
+                    <Button disabled={isButtonDisabled} className='border-none' onClick={handleSend}>
                         <ArrowUpFromLine width={24} />
                     </Button>
                 </div>
