@@ -1,8 +1,10 @@
 "use client";
+
 import React, { useState } from 'react';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import axios from 'axios';
+import Instruction from '@/components/static/Instruction';
 
 const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
@@ -24,9 +26,13 @@ const ChatWindow = () => {
     return (
         <section className='h-screen flex flex-col'>
             <div className="show-messages flex-grow overflow-auto">
-                {messages.map((msg, index) => (
-                    <ChatMessage key={index} message={msg.message} sender={msg.sender} />
-                ))}
+                {messages.length === 0 ? (
+                    <Instruction />
+                ) : (
+                    messages.map((msg, index) => (
+                        <ChatMessage key={index} message={msg.message} sender={msg.sender} />
+                    ))
+                )}
             </div>
             <div className="input-message mb-10">
                 <ChatInput onSendMessage={sendMessage} />
