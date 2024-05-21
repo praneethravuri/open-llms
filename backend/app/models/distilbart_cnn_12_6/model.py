@@ -2,8 +2,8 @@ from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import torch
 
 def load_model():
-    model_name = "./app/models/distilbart_cnn_12_6"  # Path to the saved model
-    print(f"gpu available: {torch.cuda.is_available()}")
+    model_name = "sshleifer/distilbart-cnn-12-6"  # Path to the saved model
+    print(f"GPU available: {torch.cuda.is_available()}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)

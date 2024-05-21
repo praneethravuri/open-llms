@@ -20,6 +20,7 @@ const config = {
     extend: {
       
       colors: {
+        "sidebar-gray" : "#2f2f2f",
         "dark-gray" : "#212121",
         "light-gray" : "#424242",
         "very-dark-gray" : "#171717",

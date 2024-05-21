@@ -14,7 +14,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, sender }) => {
                 </div>
             </div>
         </section>
-    );
-};
+    )
+}
 
-export default ChatMessage;
+export default ChatMessage
