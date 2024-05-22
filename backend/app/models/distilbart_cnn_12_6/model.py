@@ -10,8 +10,9 @@ def load_model():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     return model, tokenizer, device
 
-def generate_answer(model, tokenizer, device, question):
-    inputs = tokenizer(question, return_tensors="pt")
+def generate_answer(model, tokenizer, device, question, context):
+    combined_input = f"question: {question} context: {context}"
+    inputs = tokenizer(combined_input, return_tensors="pt")
     input_ids = inputs["input_ids"].to(device)
     attention_mask = inputs["attention_mask"].to(device)
 
@@ -27,11 +28,12 @@ def generate_answer(model, tokenizer, device, question):
         pad_token_id=tokenizer.eos_token_id
     )
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    response = generated_text[len(question):].strip()
+    response = generated_text.strip()
     return response
 
 if __name__ == "__main__":
     model, tokenizer, device = load_model()
+    context = "Python is a programming language that lets you work quickly and integrate systems more effectively."
     question = "write a script to print hello world in python"
-    answer = generate_answer(model, tokenizer, device, question)
+    answer = generate_answer(model, tokenizer, device, question, context)
     print(answer)

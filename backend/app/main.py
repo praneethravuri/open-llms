@@ -31,5 +31,6 @@ async def ask_question(question: Question):
     if not model_ready:
         return {"error": "Model is not ready"}
     print(f"Question: {question.question}")
-    response = generate_answer(model, tokenizer, device, question.question)
+    context = "Scuderia Ferrari is the racing division of luxury Italian auto manufacturer Ferrari and the racing team that competes in Formula One racing. The team was founded by Enzo Ferrari, initially to race cars produced by Alfa Romeo, though by 1947 Ferrari had begun building its own cars. Scuderia Ferrari is the oldest surviving and most successful Formula One team, having competed in every world championship since the 1950 Formula One season. The team holds the most constructors' championships, with a record 16 titles, and has produced numerous successful drivers, including world champions like Alberto Ascari, Niki Lauda, and Michael Schumacher. The team's iconic red cars, known as 'Prancing Horse', have become a symbol of speed, engineering excellence, and a rich racing heritage. The Ferrari F1 team is based in Maranello, Italy, and continues to be a major competitor in Formula One, often pushing the boundaries of automotive technology and design."
+    response = generate_answer(model, tokenizer, device, question.question, context=context)
     return {"answer": response}
