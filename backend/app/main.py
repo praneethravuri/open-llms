@@ -1,7 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import importlib
+from .fetch_web_content import fetch_web_content
+from .data_cleaning import extract_relevant_paragraphs
+from .data_summarization import summarize_content
+from transformers import pipeline, AutoTokenizer
+from sentence_transformers import SentenceTransformer
 
 app = FastAPI()
 
@@ -15,12 +19,6 @@ app.add_middleware(
 
 class Question(BaseModel):
     question: str
-    model: str
-
-model_modules = {
-    "deepset/tinyroberta-squad2": "app.models.deepset.tinyroberta_squad2.model",
-    "sshleifer/distilbart-cnn-12-6": "app.models.sshleifer.distilbart_cnn_12_6.model"
-}
 
 @app.get("/api/server-status")
 def read_root():
@@ -28,14 +26,24 @@ def read_root():
 
 @app.post("/api/ask")
 async def ask_question(question: Question):
-    if question.model not in model_modules:
-        raise HTTPException(status_code=400, detail="Invalid model specified")
-
-    model_module = importlib.import_module(model_modules[question.model])
-    model, tokenizer, device = model_module.load_model()
+    context = ""
+    model = SentenceTransformer('all-MiniLM-L6-v2', device='cuda')
     
-    if not model:
-        raise HTTPException(status_code=503, detail="Model is not ready")
+    paragraphs = fetch_web_content(question.question)
+    relevant_paragraphs = extract_relevant_paragraphs(paragraphs=paragraphs, question=question.question, model=model)
+    summarized_content = summarize_content(' '.join(relevant_paragraphs))
+    context += summarized_content + " "
 
-    response = model_module.generate_answer(model, tokenizer, device, question.question)
-    return {"answer": response}
+    if not context:
+        raise HTTPException(status_code=404, detail="No relevant web content found for the question.")
+    
+    question_answerer = pipeline(
+        "question-answering", 
+        model="Intel/dynamic_tinybert", 
+        tokenizer=AutoTokenizer.from_pretrained("Intel/dynamic_tinybert"),
+        device=0  # Ensure it uses the GPU
+    )
+
+    response = question_answerer(question=question.question, context=context, max_length = 500, min_length = 100)
+    
+    return {"answer": response['answer']}
