@@ -18,8 +18,8 @@ class Question(BaseModel):
     model: str
 
 model_modules = {
-    "deepset/tinyroberta-squad2": "app.models.deepset.model",
-    "sshleifer/distilbart-cnn-12-6": "app.models.sshleifer.model"
+    "deepset/tinyroberta-squad2": "app.models.deepset.tinyroberta_squad2.model",
+    "sshleifer/distilbart-cnn-12-6": "app.models.sshleifer.distilbart_cnn_12_6.model"
 }
 
 @app.post("/api/ask")
