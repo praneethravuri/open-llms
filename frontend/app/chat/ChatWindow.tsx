@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import axios from 'axios';
@@ -18,11 +18,40 @@ const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<string>("deepset/tinyroberta-squad2");
+    const [serverStatus, setServerStatus] = useState<string>("offline");
 
     const modelList = [
         "deepset/tinyroberta-squad2",
         "sshleifer/distilbart-cnn-12-6"
     ];
+
+    const checkServerStatus = async () => {
+        try {
+            const response = await axios.get('http://localhost:8000/api/server-status');
+            if (response.status === 200) {
+                setServerStatus("online");
+            } else {
+                setServerStatus("offline");
+            }
+        } catch (error) {
+            setServerStatus("offline");
+        }
+    };
+
+    useEffect(() => {
+        checkServerStatus(); // Initial check
+
+        let interval: NodeJS.Timeout;
+        if (serverStatus === "offline") {
+            interval = setInterval(checkServerStatus, 5000); // Check every 5 seconds if offline
+        }
+
+        return () => {
+            if (interval) {
+                clearInterval(interval); // Clear interval on component unmount
+            }
+        };
+    }, [serverStatus]);
 
     const sendMessage = async (message: string) => {
         setLoading(true);
@@ -57,8 +86,10 @@ const ChatWindow = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="model-status flex justify-end">
-                        <Badge variant="online">Model Status: Online</Badge>
+                    <div className="server-status flex justify-end">
+                        <Badge variant={serverStatus === "online" ? "online" : "offline"}>
+                            Server {serverStatus === "online" ? "Online" : "Offline"}
+                        </Badge>
                     </div>
                 </div>
                 <div className="show-messages flex-grow overflow-auto p-4">

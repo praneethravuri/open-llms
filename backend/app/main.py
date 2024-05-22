@@ -22,6 +22,10 @@ model_modules = {
     "sshleifer/distilbart-cnn-12-6": "app.models.sshleifer.distilbart_cnn_12_6.model"
 }
 
+@app.get("/api/server-status")
+def read_root():
+    return {"message": "Server is running"}
+
 @app.post("/api/ask")
 async def ask_question(question: Question):
     if question.model not in model_modules:
