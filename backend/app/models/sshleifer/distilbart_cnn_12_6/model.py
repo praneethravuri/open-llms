@@ -1,41 +1,91 @@
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-import torch
+from langchain_community.document_loaders import HuggingFaceDatasetLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from transformers import AutoTokenizer, pipeline
+from langchain import HuggingFacePipeline
+from langchain.chains import RetrievalQA
 
-def load_model():
-    model_name = "sshleifer/distilbart-cnn-12-6"
-    print(f"GPU available: {torch.cuda.is_available()}")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(device)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    return model, tokenizer, device
+# Specify the dataset name and the column containing the content
+dataset_name = "databricks/databricks-dolly-15k"
+page_content_column = "context"  # or any other column you're interested in
 
-def is_model_ready():
-    try:
-        model, tokenizer, device = load_model()
-        return model is not None and tokenizer is not None and device is not None
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        return False
+# Create a loader instance
+loader = HuggingFaceDatasetLoader(dataset_name, page_content_column)
 
-def generate_answer(model, tokenizer, device, question):
-    context = "Scuderia Ferrari is the racing division of luxury Italian auto manufacturer Ferrari and the racing team that competes in Formula One racing. The team was founded by Enzo Ferrari, initially to race cars produced by Alfa Romeo, though by 1947 Ferrari had begun building its own cars. Scuderia Ferrari is the oldest surviving and most successful Formula One team, having competed in every world championship since the 1950 Formula One season. The team holds the most constructors' championships, with a record 16 titles, and has produced numerous successful drivers, including world champions like Alberto Ascari, Niki Lauda, and Michael Schumacher. The team's iconic red cars, known as 'Prancing Horse', have become a symbol of speed, engineering excellence, and a rich racing heritage. The Ferrari F1 team is based in Maranello, Italy, and continues to be a major competitor in Formula One, often pushing the boundaries of automotive technology and design."
-    combined_input = f"question: {question} context: {context}"
-    inputs = tokenizer(combined_input, return_tensors="pt")
-    input_ids = inputs["input_ids"].to(device)
-    attention_mask = inputs["attention_mask"].to(device)
+# Load the data
+data = loader.load()
 
-    outputs = model.generate(
-        input_ids,
-        attention_mask=attention_mask,
-        max_length=500,
-        num_beams=5,
-        no_repeat_ngram_size=2,
-        do_sample=True,  # Enable sampling to use top_k and top_p
-        top_k=50,
-        top_p=0.95,
-        pad_token_id=tokenizer.eos_token_id
-    )
-    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    response = generated_text.strip()
-    return response
+# Create an instance of the RecursiveCharacterTextSplitter class with specific parameters.
+# It splits text into chunks of 1000 characters each with a 150-character overlap.
+text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
+
+# 'data' holds the text you want to split, split the text into documents using the text splitter.
+docs = text_splitter.split_documents(data)
+
+# Define the path to the pre-trained model you want to use
+modelPath = "sentence-transformers/all-MiniLM-l6-v2"
+
+# Create a dictionary with model configuration options, specifying to use the CPU for computations
+model_kwargs = {'device':'cuda'}
+
+# Create a dictionary with encoding options, specifically setting 'normalize_embeddings' to False
+encode_kwargs = {'normalize_embeddings': False}
+
+# Initialize an instance of HuggingFaceEmbeddings with the specified parameters
+embeddings = HuggingFaceEmbeddings(
+    model_name=modelPath,     # Provide the pre-trained model's path
+    model_kwargs=model_kwargs, # Pass the model configuration options
+    encode_kwargs=encode_kwargs # Pass the encoding options
+)
+
+text = "This is a test document."
+query_result = embeddings.embed_query(text)
+
+db = FAISS.from_documents(docs, embeddings)
+
+question = "What is cheesemaking?"
+searchDocs = db.similarity_search(question)
+
+# Create a tokenizer object by loading the pretrained "Intel/dynamic_tinybert" tokenizer.
+tokenizer = AutoTokenizer.from_pretrained("Intel/dynamic_tinybert")
+
+# Create a question-answering model object by loading the pretrained "Intel/dynamic_tinybert" model.
+model = AutoModelForQuestionAnswering.from_pretrained("Intel/dynamic_tinybert")
+
+# Specify the model name you want to use
+model_name = "Intel/dynamic_tinybert"
+
+# Load the tokenizer associated with the specified model
+tokenizer = AutoTokenizer.from_pretrained(model_name, padding=True, truncation=True, max_length=512)
+
+# Define a question-answering pipeline using the model and tokenizer
+question_answerer = pipeline(
+    "question-answering", 
+    model=model_name, 
+    tokenizer=tokenizer,
+    return_tensors='pt'
+)
+
+# Create an instance of the HuggingFacePipeline, which wraps the question-answering pipeline
+# with additional model-specific arguments (temperature and max_length)
+llm = HuggingFacePipeline(
+    pipeline=question_answerer,
+    model_kwargs={"temperature": 1.0, "max_length": 512},
+)
+
+retriever = db.as_retriever()
+
+docs = retriever.get_relevant_documents("What is a car?")
+
+# Create a retriever object from the 'db' with a search configuration where it retrieves up to 4 relevant splits/documents.
+retriever = db.as_retriever(search_kwargs={"k": 4})
+
+# Create a question-answering instance (qa) using the RetrievalQA class.
+# It's configured with a language model (llm), a chain type "refine," the retriever we created, and an option to not return source documents.
+qa = RetrievalQA.from_chain_type(llm=llm, chain_type="refine", retriever=retriever, return_source_documents=False)
+
+question = "What is a graph?"
+result = qa.run({"query": question})
+print(result["result"])

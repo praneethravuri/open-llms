@@ -56,7 +56,7 @@ const ChatWindow = () => {
     const sendMessage = async (message: string) => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/api/ask', { question: message, model: selectedModel }, {
+            const response = await axios.post('http://localhost:8000/api/ask', { question: message }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
