@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Instruction = () => {
     const instructions = [
-        { title: "Select a Language Model", content: "Choose a pre-trained language model from our curated list to get started." },
-        { title: "Ask Your Question", content: "Enter your query and submit it to the selected model for an intelligent response." },
-        { title: "Review Previous Conversations", content: "Access your chat history to revisit past interactions and insights." },
+        { title: "Select Model", content: "Choose a pre-trained language model from a curated list to get started." },
+        { title: "Ask Your Question", content: "Enter your query and submit it to the selected model for a response." },
+        { title: "Chat History", content: "Access your chat history to revisit past interactions and insights." },
     ];
 
     return (

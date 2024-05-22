@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
@@ -13,13 +12,18 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 
 const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [modelReady, setModelReady] = useState<boolean>(false);
+
+    const modelList = [
+        "deepset/tinyroberta-squad2",
+        "sshleifer/distilbart-cnn-12-6"
+    ]
 
     useEffect(() => {
         const checkModelReady = async () => {
@@ -57,46 +61,47 @@ const ChatWindow = () => {
     };
 
     return (
-        <section className='h-screen flex flex-col'>
-            <div className="model-status-selection flex items-center justify-between p-4">
-                <div className="model-selection">
-                    <Select>
-                        <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
-                            <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
-                            <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
-                        </SelectContent>
-                    </Select>
-
+        <section className='h-screen flex flex-col items-center justify-center'>
+            <main className='md:w-3/6 w-full h-full flex flex-col'>
+                <div className="model-status-selection flex items-center justify-between p-4">
+                    <div className="model-selection">
+                        <Select>
+                            <SelectTrigger className="w-[200px]">
+                                <SelectValue placeholder="Select model" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                                <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                                <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="model-status flex justify-end">
+                        {!modelReady ? (
+                            <Badge variant="offline">Model Offline</Badge>
+                        ) : (
+                            <Badge variant="online">Model Online</Badge>
+                        )}
+                    </div>
                 </div>
-                <div className="model-status flex justify-end">
-                    {!modelReady ? (
-                        <Badge variant="offline">Model Offline</Badge>
+                <div className="show-messages flex-grow overflow-auto p-4">
+                    {messages.length === 0 ? (
+                        <Instruction />
                     ) : (
-                        <Badge variant="online">Model Online</Badge>
+                        <>
+                            {messages.map((msg, index) => (
+                                <ChatMessage key={index} message={msg.message} sender={msg.sender} />
+                            ))}
+                            {loading && <LoadingSpinner />}
+                        </>
                     )}
                 </div>
-            </div>
-            <div className="show-messages flex-grow overflow-auto p-4">
-                {messages.length === 0 ? (
-                    <Instruction />
-                ) : (
-                    <>
-                        {messages.map((msg, index) => (
-                            <ChatMessage key={index} message={msg.message} sender={msg.sender} />
-                        ))}
-                        {loading && <LoadingSpinner />}
-                    </>
-                )}
-            </div>
-            <div className="input-message mb-10 p-4">
-                <ChatInput onSendMessage={sendMessage} />
-            </div>
+                <div className="input-message p-4">
+                    <ChatInput onSendMessage={sendMessage} />
+                </div>
+            </main>
         </section>
-    )
+    );
 }
 
 export default ChatWindow;
