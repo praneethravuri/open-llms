@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from app.models.distilbart_cnn_12_6.model import load_model, generate_answer
+import importlib
 
 app = FastAPI()
 
@@ -15,22 +15,23 @@ app.add_middleware(
 
 class Question(BaseModel):
     question: str
+    model: str
 
-# Load model and tokenizer
-print("Loading model...")
-model, tokenizer, device = load_model()
-model_ready = model is not None and tokenizer is not None and device is not None
-print("Model loaded successfully." if model_ready else "Model failed to load.")
-
-@app.get("/api/health")
-async def health_check():
-    return {"status": "ready" if model_ready else "not ready"}
+model_modules = {
+    "deepset/tinyroberta-squad2": "app.models.deepset.model",
+    "sshleifer/distilbart-cnn-12-6": "app.models.sshleifer.model"
+}
 
 @app.post("/api/ask")
 async def ask_question(question: Question):
-    if not model_ready:
-        return {"error": "Model is not ready"}
-    print(f"Question: {question.question}")
-    context = "Scuderia Ferrari is the racing division of luxury Italian auto manufacturer Ferrari and the racing team that competes in Formula One racing. The team was founded by Enzo Ferrari, initially to race cars produced by Alfa Romeo, though by 1947 Ferrari had begun building its own cars. Scuderia Ferrari is the oldest surviving and most successful Formula One team, having competed in every world championship since the 1950 Formula One season. The team holds the most constructors' championships, with a record 16 titles, and has produced numerous successful drivers, including world champions like Alberto Ascari, Niki Lauda, and Michael Schumacher. The team's iconic red cars, known as 'Prancing Horse', have become a symbol of speed, engineering excellence, and a rich racing heritage. The Ferrari F1 team is based in Maranello, Italy, and continues to be a major competitor in Formula One, often pushing the boundaries of automotive technology and design."
-    response = generate_answer(model, tokenizer, device, question.question, context=context)
+    if question.model not in model_modules:
+        raise HTTPException(status_code=400, detail="Invalid model specified")
+
+    model_module = importlib.import_module(model_modules[question.model])
+    model, tokenizer, device = model_module.load_model()
+    
+    if not model:
+        raise HTTPException(status_code=503, detail="Model is not ready")
+
+    response = model_module.generate_answer(model, tokenizer, device, question.question)
     return {"answer": response}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import axios from 'axios';
@@ -14,39 +14,20 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-
 const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [modelReady, setModelReady] = useState<boolean>(false);
+    const [selectedModel, setSelectedModel] = useState<string>("deepset/tinyroberta-squad2");
 
     const modelList = [
         "deepset/tinyroberta-squad2",
         "sshleifer/distilbart-cnn-12-6"
-    ]
-
-    useEffect(() => {
-        const checkModelReady = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/health');
-                if (response.data.status === "ready") {
-                    setModelReady(true);
-                } else {
-                    throw new Error("Model not ready");
-                }
-            } catch (error) {
-                console.error("Model not ready yet:", error);
-                setTimeout(checkModelReady, 5000);
-            }
-        };
-
-        checkModelReady();
-    }, []);
+    ];
 
     const sendMessage = async (message: string) => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/api/ask', { question: message }, {
+            const response = await axios.post('http://localhost:8000/api/ask', { question: message, model: selectedModel }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -65,23 +46,19 @@ const ChatWindow = () => {
             <main className='md:w-3/6 w-full h-full flex flex-col'>
                 <div className="model-status-selection flex items-center justify-between p-4">
                     <div className="model-selection">
-                        <Select>
+                        <Select value={selectedModel} onValueChange={setSelectedModel}>
                             <SelectTrigger className="w-[200px]">
                                 <SelectValue placeholder="Select model" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
-                                <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
-                                <SelectItem value="sshleifer/distilbart-cnn-12-6">sshleifer/distilbart-cnn-12-6</SelectItem>
+                                {modelList.map((model, index) => (
+                                    <SelectItem key={index} value={model}>{model}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="model-status flex justify-end">
-                        {!modelReady ? (
-                            <Badge variant="offline">Model Offline</Badge>
-                        ) : (
-                            <Badge variant="online">Model Online</Badge>
-                        )}
+                        <Badge variant="online">Model Status: Online</Badge>
                     </div>
                 </div>
                 <div className="show-messages flex-grow overflow-auto p-4">

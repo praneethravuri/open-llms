@@ -1,8 +1,7 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import torch
 
-def load_model():
-    model_name = "sshleifer/distilbart-cnn-12-6"
+def load_model(model_name):
     print(f"GPU available: {torch.cuda.is_available()}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
@@ -32,7 +31,7 @@ def generate_answer(model, tokenizer, device, question, context):
     return response
 
 if __name__ == "__main__":
-    model, tokenizer, device = load_model()
+    model, tokenizer, device = load_model("sshleifer/distilbart-cnn-12-6")
     context = "Python is a programming language that lets you work quickly and integrate systems more effectively."
     question = "write a script to print hello world in python"
     answer = generate_answer(model, tokenizer, device, question, context)
