@@ -33,8 +33,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     };
 
     return (
-        <section className="chat-input flex justify-center ">
-            <div className="input-area flex items-center justify-between bg-light-gray md:w-[calc(100%-5rem)] w-full space-x-4 p-5 rounded-lg">
+        <section className="chat-input flex justify-center">
+            <div className="input-area flex items-center justify-between bg-light-gray md:w-[calc(100%)] w-full space-x-4 p-5 rounded-lg">
                 <div className='text-input w-full'>
                     <Textarea
                         rows={1}

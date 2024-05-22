@@ -9,8 +9,8 @@ const Instruction = () => {
     ];
 
     return (
-        <section>
-            <div className="main-content p-10 flex flex-col justify-between space-y-8">
+        <section className=' h-full flex flex-col justify-center'>
+            <div className="main-content flex flex-col justify-between space-y-8">
                 <div className="sm:block hidden">
                     <div className="header flex justify-between sm:block">
                         <div className="title text-2xl font-semibold">How to get started</div>

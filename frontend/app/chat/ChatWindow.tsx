@@ -61,7 +61,7 @@ const ChatWindow = () => {
             <div className="model-status-selection flex items-center justify-between p-4">
                 <div className="model-selection">
                     <Select>
-                        <SelectTrigger className="w-[300px]">
+                        <SelectTrigger className="w-[200px]">
                             <SelectValue placeholder="Select model" />
                         </SelectTrigger>
                         <SelectContent>

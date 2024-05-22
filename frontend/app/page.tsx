@@ -16,7 +16,7 @@ const Home: React.FC = () => {
             <main className="flex flex-col items-center justify-center flex-1 w-full px-20 text-center">
                 <h1 className="text-5xl font-bold text-white">Interact with LLMs</h1>
                 <p className="mt-4 text-lg text-white">
-                    Interact with pre-trained open-source LLM models for question answering.
+                    Interact with pre-trained open-source LLM models for question answering
                 </p>
                 <div className="mt-6 items-center flex space-x-4 justify-between">
                     <div className="get-started-btn">
