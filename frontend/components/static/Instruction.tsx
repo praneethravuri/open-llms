@@ -5,7 +5,7 @@ const Instruction = () => {
     const instructions = [
         { title: "Select Model", content: "Choose a pre-trained language model from a curated list to get started." },
         { title: "Ask Your Question", content: "Enter your query and submit it to the selected model for a response." },
-        { title: "Chat History", content: "Access your chat history to revisit past interactions and insights." },
+        { title: "Change Parameters", content: "Modify the parameters to get different insights" },
     ];
 
     return (

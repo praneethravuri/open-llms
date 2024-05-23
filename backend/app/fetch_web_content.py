@@ -17,8 +17,10 @@ def fetch_web_content(query):
     response = []
     search_results = search(query, num_results=5)
     for url in search_results:
+        print(f"URL: {url}")
         content = fetch_text(url)
         if content:
             paragraphs = content.split("\n")
             response.extend(paragraphs)
+    print(f"Fetched web content: {response}")
     return response
