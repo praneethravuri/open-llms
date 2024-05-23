@@ -1,4 +1,7 @@
-from transformers import AutoTokenizer, BartForConditionalGeneration
+from transformers import AutoTokenizer, T5ForConditionalGeneration
+import logging
+
+logger = logging.getLogger(__name__)
 
 def chunk_text(text, chunk_size=512):
     words = text.split()
@@ -6,17 +9,18 @@ def chunk_text(text, chunk_size=512):
         yield ' '.join(words[i:i + chunk_size])
 
 def summarize_content(content):
-    model_name = "facebook/bart-large-cnn"
+    model_name = "t5-large"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = BartForConditionalGeneration.from_pretrained(model_name)
-    model = model.to('cuda')  # Ensure model is on GPU
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
+    model = model.to('cuda')
 
     summaries = []
     for chunk in chunk_text(content):
-        inputs = tokenizer(chunk, max_length=1024, return_tensors="pt", truncation=True)
-        inputs = {key: value.to('cuda') for key, value in inputs.items()}  # Move inputs to GPU
-        summary_ids = model.generate(inputs["input_ids"], num_beams=4, max_length=150, early_stopping=True)
+        inputs = tokenizer(chunk, max_length=512, return_tensors="pt", truncation=True)
+        inputs = {key: value.to('cuda') for key, value in inputs.items()}
+        summary_ids = model.generate(inputs["input_ids"], num_beams=5, max_length=150, early_stopping=True)
         summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
         summaries.append(summary)
-    print(f"Summarized content: {' '.join(summaries)}")
-    return ' '.join(summaries)
+    summarized_text = ' '.join(summaries)
+    logger.info("Summarized content: %s", summarized_text)
+    return summarized_text

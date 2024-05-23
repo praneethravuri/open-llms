@@ -1,4 +1,7 @@
 from sentence_transformers import util
+import logging
+
+logger = logging.getLogger(__name__)
 
 def extract_relevant_paragraphs(paragraphs, question, model):
     question_embedding = model.encode(question, convert_to_tensor=True)
@@ -6,8 +9,8 @@ def extract_relevant_paragraphs(paragraphs, question, model):
 
     for para in paragraphs:
         para_embedding = model.encode(para, convert_to_tensor=True)
-        similarity = util.pytorch_cos_sim(question_embedding, para_embedding)
-        if similarity.item() > 0.2:  # Threshold for relevance, can be adjusted
+        similarity = util.dot_score(question_embedding, para_embedding)
+        if similarity.item() > 0.45:
             relevant_paragraphs.append(para)
-    print(f"Relevant Paragraphs: {relevant_paragraphs}")
+    logger.info("Extracted %d relevant paragraphs for question: %s", len(relevant_paragraphs), question)
     return relevant_paragraphs
