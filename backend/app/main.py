@@ -7,9 +7,13 @@ from .fetch_web_content import fetch_web_content
 from .data_cleaning import extract_relevant_paragraphs
 from transformers import pipeline, AutoModelForQuestionAnswering, AutoTokenizer
 from sentence_transformers import SentenceTransformer
+import torch
 
 # Set environment variables
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+print(torch.cuda.is_available())
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

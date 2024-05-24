@@ -3,6 +3,5 @@ uvicorn
 transformers
 torch
 tensorflow
-tf-keras
-datasets
-accelerate
+sentence_transformers
+nltk
