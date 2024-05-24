@@ -3,8 +3,8 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from .fetch_web_content import fetch_web_content
-from .data_cleaning import extract_relevant_paragraphs
+from .fetch_web_content import fetch_web_content  # Ensure these modules are available
+from .data_cleaning import extract_relevant_paragraphs  # Ensure these modules are available
 from transformers import pipeline, AutoModelForQuestionAnswering, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 import torch
@@ -31,7 +31,8 @@ app.add_middleware(
 
 class Question(BaseModel):
     question: str
-
+    model: str
+    
 @app.get("/api/server-status")
 def read_root():
     logger.info("Server status requested")
@@ -40,10 +41,10 @@ def read_root():
 @app.post("/api/ask")
 async def ask_question(question: Question):
     logger.info("Received question: %s", question.question)
-    model = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device='cuda')
+    sentence_transformer_model = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device='cuda')
 
     paragraphs = fetch_web_content(question.question)
-    relevant_paragraphs = extract_relevant_paragraphs(paragraphs=paragraphs, question=question.question, model=model)
+    relevant_paragraphs = extract_relevant_paragraphs(paragraphs=paragraphs, question=question.question, model=sentence_transformer_model)
     if not relevant_paragraphs:
         logger.warning("No relevant content found for question: %s", question.question)
         raise HTTPException(status_code=404, detail="No relevant web content found for the question.")
@@ -52,7 +53,7 @@ async def ask_question(question: Question):
         logger.warning("Summarization resulted in empty content for question: %s", question.question)
         raise HTTPException(status_code=404, detail="Summarization resulted in empty content.")
     
-    model_name = "deepset/roberta-base-squad2"
+    model_name = question.model
     question_answerer = pipeline(
         "question-answering", 
         model=AutoModelForQuestionAnswering.from_pretrained(model_name), 

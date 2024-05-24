@@ -22,7 +22,10 @@ const ChatWindow = () => {
 
     const modelList = [
         "deepset/tinyroberta-squad2",
-        "sshleifer/distilbart-cnn-12-6"
+        "sshleifer/distilbart-cnn-12-6",
+        "deepset/roberta-base-squad2",
+        "Intel/dynamic_tinybert",
+        "distilbert/distilbert-base-cased-distilled-squad"
     ];
 
     const checkServerStatus = async () => {
@@ -56,7 +59,7 @@ const ChatWindow = () => {
     const sendMessage = async (message: string) => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/api/ask', { question: message }, {
+            const response = await axios.post('http://localhost:8000/api/ask', { question: message, model: selectedModel }, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
