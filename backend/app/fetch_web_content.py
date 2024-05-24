@@ -1,26 +1,48 @@
 import requests
-from bs4 import BeautifulSoup
-from googlesearch import search
+import json
+import nltk
+import regex as re
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
-def fetch_text(url):
-    try:
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        paragraphs = soup.find_all('p')
-        content = ' '.join([para.get_text() for para in paragraphs])
-        return content
-    except Exception as e:
-        print(f"Error fetching content from {url}: {e}")
-        return ""
+# Ensure NLTK data is downloaded
+nltk.download('punkt')
+nltk.download('stopwords')
 
-def fetch_web_content(query):
-    response = []
-    search_results = search(query, num_results=5)
-    for url in search_results:
-        print(f"URL: {url}")
-        content = fetch_text(url)
-        if content:
-            paragraphs = content.split("\n")
-            response.extend(paragraphs)
-    print(f"Fetched web content: {response}")
-    return response
+def search_question(query):
+    url = "http://localhost:8080"
+    params = {
+        'q': query,
+        'format': 'json'
+    }
+    
+    response = requests.get(url, params=params)
+    
+    if response.status_code != 200:
+        print(f"Error making request: {response.status_code}")
+        return {}
+    
+    results = response.json()
+    return results
+
+def preprocess_text(text):
+    # Remove unicode characters
+    text = re.sub(r'[^\x00-\x7F]+', ' ', text)
+    
+    # Tokenize the text
+    words = word_tokenize(text)
+    
+    # Remove stop words
+    stop_words = set(stopwords.words('english'))
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    
+    # Join the words back into a single string
+    cleaned_text = ' '.join(filtered_words)
+    
+    return cleaned_text
+
+def fetch_web_content(question):
+    results = search_question(query=question).get("results", [])
+    
+    context = [preprocess_text(curr_result["content"]) for curr_result in results]
+    return context

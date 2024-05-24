@@ -1,13 +1,15 @@
 import logging
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .fetch_web_content import fetch_web_content
 from .data_cleaning import extract_relevant_paragraphs
-from .data_summarization import summarize_content
-from transformers import pipeline, AutoTokenizer
+from transformers import pipeline, AutoModelForQuestionAnswering, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 
+# Set environment variables
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,26 +36,27 @@ def read_root():
 @app.post("/api/ask")
 async def ask_question(question: Question):
     logger.info("Received question: %s", question.question)
-    context = ""
     model = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device='cuda')
-    
+
     paragraphs = fetch_web_content(question.question)
     relevant_paragraphs = extract_relevant_paragraphs(paragraphs=paragraphs, question=question.question, model=model)
-    summarized_content = summarize_content(' '.join(relevant_paragraphs))
-    context += summarized_content + " "
-
-    if not context:
+    if not relevant_paragraphs:
         logger.warning("No relevant content found for question: %s", question.question)
         raise HTTPException(status_code=404, detail="No relevant web content found for the question.")
+    summarized_content = "".join(relevant_paragraphs)
+    if not summarized_content.strip():
+        logger.warning("Summarization resulted in empty content for question: %s", question.question)
+        raise HTTPException(status_code=404, detail="Summarization resulted in empty content.")
     
+    model_name = "deepset/roberta-base-squad2"
     question_answerer = pipeline(
         "question-answering", 
-        model="Intel/dynamic_tinybert", 
-        tokenizer=AutoTokenizer.from_pretrained("Intel/dynamic_tinybert"),
-        device=0
+        model=AutoModelForQuestionAnswering.from_pretrained(model_name), 
+        tokenizer=AutoTokenizer.from_pretrained(model_name),
+        device=0  # Use GPU if available
     )
 
-    response = question_answerer(question=question.question, context=context, max_length=500, min_length=100)
+    response = question_answerer(question=question.question, context=summarized_content)
     logger.info("Generated answer: %s", response['answer'])
     
     return {"answer": response['answer']}
