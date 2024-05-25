@@ -3,11 +3,13 @@ import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from .fetch_web_content import fetch_web_content  # Ensure these modules are available
-from .data_cleaning import extract_relevant_paragraphs  # Ensure these modules are available
+from .fetch_web_content import fetch_web_content
+from .data_cleaning import extract_relevant_paragraphs
 from transformers import pipeline, AutoModelForQuestionAnswering, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 import torch
+import language_tool_python
+from textblob import TextBlob 
 
 # Set environment variables
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
@@ -32,6 +34,17 @@ app.add_middleware(
 class Question(BaseModel):
     question: str
     model: str
+    
+
+def correct_grammar(text):
+    # tool = language_tool_python.LanguageTool('en-US')
+    # result = tool.correct(text)
+    
+    text = TextBlob(text)
+    corrected_text = text.correct()
+    print(f"Corrected Text: {corrected_text}")
+    print(f"Type of detailed answers: {type(corrected_text)}")
+    return str(corrected_text)
     
 @app.get("/api/server-status")
 def read_root():
@@ -61,7 +74,26 @@ async def ask_question(question: Question):
         device=0  # Use GPU if available
     )
 
-    response = question_answerer(question=question.question, context=summarized_content)
-    logger.info("Generated answer: %s", response['answer'])
+    # Generate multiple answers
+    responses = []
+    for start in range(0, len(summarized_content), 1024):
+        part = summarized_content[start:start + 1024]
+        response = question_answerer(question=question.question, context=part, max_answer_len=1024, batch_size=16)
+        if 'answer' in response and response['answer']:
+            responses.append(response['answer'])
+
+    # Combine answers to form a detailed response
+    detailed_answer = " ".join(responses)
+    if not detailed_answer.strip():
+        logger.warning("Generated answer is empty for question: %s", question.question)
+        raise HTTPException(status_code=404, detail="Generated answer is empty.")
+
+    logger.info("Generated answer: %s", detailed_answer)
     
-    return {"answer": response['answer']}
+    print(f"\n\n\n\nType of detailed answers: {type(detailed_answer)}")
+    
+    print(f"\n\n\nGenerated Answers : {detailed_answer}")
+    
+    grammar_corrected_answer = correct_grammar(text=detailed_answer)
+    
+    return {"answer": grammar_corrected_answer}

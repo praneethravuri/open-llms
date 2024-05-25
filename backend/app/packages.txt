@@ -6,3 +6,6 @@ tensorflow
 sentence_transformers
 nltk
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+tf-keras
+language_tool_python
+textblob
