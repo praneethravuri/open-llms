@@ -11,7 +11,7 @@ A chat application that allows users to interact with pre-trained open-source LL
 ## Tech Stack
 
 - **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: FastAPI, Python, Pydantic
+- **Backend**: FastAPI, Python, SearxNG
 - **Machine Learning**: Hugging Face Transformers for LLMs
 - **Other Libraries**: Axios (for HTTP requests), CORS Middleware
 
@@ -24,6 +24,7 @@ Follow these steps to set up and run the application on your local machine.
 - Node.js 14+
 - Python 3.7+
 - Git
+- Docker
 
 ### Steps
 
@@ -52,9 +53,17 @@ Follow these steps to set up and run the application on your local machine.
     transformers
     torch
     tensorflow
+    sentence_transformers
+    nltk
     tf-keras
-    datasets
-    accelerate
+    language_tool_python
+    textblob
+    pymongo
+    ```
+
+    Additionally, install PyTorch with CUDA support:
+    ```bash
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
     ```
 
 3. **Frontend Setup**
@@ -75,6 +84,16 @@ Follow these steps to set up and run the application on your local machine.
     ```bash
     uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     ```
+
+2. **Start SearXNG***
+
+    Navigate to the searxng-docker directory and start SearxNG using Docker.
+
+    ```bash
+    cd searxng-docker
+    docker-compose up
+    ```
+
 
 ### Frontend
 
