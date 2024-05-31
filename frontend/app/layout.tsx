@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { GeistSans } from "geist/font/sans";
+import { GeistMono } from 'geist/font/mono'
 
 export const metadata: Metadata = {
   title: "OpenLLM",
@@ -14,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${GeistSans.className} bg-dark-gray text-white sm:text-base text-sm`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} bg-dark-gray text-white sm:text-base text-sm font-sans`}>
         {children}
       </body>
     </html>

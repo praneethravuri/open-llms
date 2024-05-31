@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
+
 const ChatWindow = () => {
     const [messages, setMessages] = useState<{ sender: 'user' | 'bot'; message: string; }[]>([]);
     const [loading, setLoading] = useState<boolean>(false);

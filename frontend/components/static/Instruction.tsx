@@ -27,7 +27,7 @@ const Instruction = () => {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className='text-base text-gray-text-color'>{instruction.content}</p>
+                                    <p className='text-base font-mono text-gray-text-color'>{instruction.content}</p>
                                 </CardContent>
                             </Card>
                         </div>
