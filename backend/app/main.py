@@ -8,7 +8,6 @@ from .data_cleaning import extract_relevant_paragraphs
 from transformers import pipeline, AutoModelForQuestionAnswering, AutoTokenizer
 from sentence_transformers import SentenceTransformer
 import torch
-import language_tool_python
 from textblob import TextBlob 
 
 # Set environment variables
@@ -53,6 +52,7 @@ def read_root():
 
 @app.post("/api/ask")
 async def ask_question(question: Question):
+    print("\n\n\nHERE!!!!\n\n\n")
     logger.info("Received question: %s", question.question)
     sentence_transformer_model = SentenceTransformer('multi-qa-MiniLM-L6-cos-v1', device='cuda')
 
