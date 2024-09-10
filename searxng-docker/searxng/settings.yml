@@ -1,0 +1,27 @@
+# see https://docs.searxng.org/admin/settings/settings.html#settings-use-default-settings
+use_default_settings: true
+
+server:
+  # base_url is defined in the SEARXNG_BASE_URL environment variable, see .env and docker-compose.yml
+  secret_key: "9a90806ed4dba832ca25e3c224d11be21562901ed313b2d585c480543f94af03"  # change this!
+  limiter: false  # can be disabled for a private instance
+  image_proxy: true
+  port: 8080  # Add this line to specify the port
+  bind_address: "0.0.0.0"  # Add this line to allow external connections
+
+ui:
+  static_use_hash: true
+
+redis:
+  url: redis://redis:6379/0
+
+general:
+  debug: true
+
+search:
+  formats:
+    - json
+
+# Uncomment and modify these lines if you want to expose SearXNG externally
+# SEARXNG_HOSTNAME=your_hostname_or_ip
+# LETSENCRYPT_EMAIL=your_email@example.com
